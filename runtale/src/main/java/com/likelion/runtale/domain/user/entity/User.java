@@ -1,7 +1,9 @@
 package com.likelion.runtale.domain.user.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
+@Getter
 @Entity
 public class User {
     @Id
