@@ -1,4 +1,4 @@
-package com.example.runtale;
+package com.likelion.runtale;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
