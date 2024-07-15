@@ -2,7 +2,9 @@ package com.likelion.runtale.domain.user.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Getter
 @Entity
 public class User {
@@ -26,7 +28,4 @@ public class User {
         this.nickname = nickname;
     }
 
-    public User() {
-
-    }
 }
