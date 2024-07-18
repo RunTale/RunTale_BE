@@ -6,6 +6,8 @@ import com.likelion.runtale.web.SessionConst;
 import com.likelion.runtale.web.login.loginDto.ApiResponse;
 import com.likelion.runtale.web.login.loginDto.LoginForm;
 import com.likelion.runtale.web.login.loginDto.UserData;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -13,13 +15,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
+@Tag(name = "Login", description = "login 관련 API")
 @Controller
 @RequiredArgsConstructor
 @RestController
 public class LoginController {
     private final LoginService loginService;
 
+    @Operation(summary = "로그인")
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserData>> login(@RequestBody LoginForm form,
                                              HttpServletRequest request) {
@@ -43,6 +46,7 @@ public class LoginController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "로그아웃")
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<UserData>> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
