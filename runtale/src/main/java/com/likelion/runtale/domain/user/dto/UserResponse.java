@@ -10,3 +10,4 @@ public class UserResponse {
     private String loginId;
     private String nickname;
 }
+
