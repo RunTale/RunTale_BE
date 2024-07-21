@@ -1,6 +1,8 @@
 package com.likelion.runtale.domain.user.service;
 
-import com.likelion.runtale.domain.user.Exception.UserNotFoundException;
+import com.likelion.runtale.common.exception.BadRequestException;
+import com.likelion.runtale.common.exception.NotFoundException;
+import com.likelion.runtale.common.response.ErrorMessage;
 import com.likelion.runtale.domain.user.dto.UserRequest;
 import com.likelion.runtale.domain.user.dto.UserResponse;
 import com.likelion.runtale.domain.user.entity.User;
@@ -22,10 +24,11 @@ public class UserService {
             User foundUser = user.get();
             return new UserResponse(foundUser.getId(), foundUser.getLoginId(), foundUser.getNickname());
         } else {
-            throw new UserNotFoundException("해당 유저는 없습니다. : " + id);
+            throw new NotFoundException(ErrorMessage.USER_NOT_EXIST);
         }
     }
 
+    // 회원가입
     public UserResponse createUser(UserRequest userRequest) {
         User user = userRequest.toUser();
         validateDuplicateMember(user);
@@ -35,7 +38,7 @@ public class UserService {
     private void validateDuplicateMember(User user) {
         List<User> findMembers = userRepository.findByLoginId(user.getLoginId());
         if (!findMembers.isEmpty()) {
-            throw new IllegalStateException("이미 존재하는 유저아이디입니다.");
+            throw new BadRequestException(ErrorMessage.USER_LOGIN_ID_VALIDATE);
         }
     }
 
@@ -43,7 +46,7 @@ public class UserService {
         Optional<User> optionalUser = userRepository.findById(id);
 
         if (optionalUser.isEmpty()) {
-            throw new UserNotFoundException("해당 유저는 없습니다. : " + id);
+            throw new NotFoundException(ErrorMessage.USER_NOT_EXIST);
         }
         User user = optionalUser.get();
         user.setNickname(userRequest.getNickname());
@@ -54,6 +57,9 @@ public class UserService {
     }
 
     public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new NotFoundException(ErrorMessage.USER_NOT_EXIST);
+        }
         userRepository.deleteById(id);
     }
 }
