@@ -1,9 +1,11 @@
 package com.likelion.runtale.web.login;
 
+import com.likelion.runtale.common.ApiResponse;
+import com.likelion.runtale.common.response.ErrorMessage;
+import com.likelion.runtale.common.response.SuccessMessage;
 import com.likelion.runtale.domain.login.LoginService;
 import com.likelion.runtale.domain.user.entity.User;
 import com.likelion.runtale.web.SessionConst;
-import com.likelion.runtale.web.login.loginDto.ApiResponse;
 import com.likelion.runtale.web.login.loginDto.LoginForm;
 import com.likelion.runtale.web.login.loginDto.UserData;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,14 +27,14 @@ public class LoginController {
     @Operation(summary = "로그인")
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<UserData>> login(@RequestBody LoginForm form,
-                                             HttpServletRequest request) {
+                                                       HttpServletRequest request) {
 
         User loginUser = loginService.login(form.getLoginId(), form.getPassword());
 
         if (loginUser == null) {
             // 로그인 실패인 경우
-            ApiResponse<UserData> response = new ApiResponse<>(401, "로그인 실패", null);
-            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+            ResponseEntity.status(ErrorMessage.USER_LOGIN_FAILED.getHttpStatus())
+                    .body(ApiResponse.error(ErrorMessage.USER_LOGIN_FAILED));
         }
 
         //로그인 성공 처리
@@ -41,9 +43,11 @@ public class LoginController {
         //세션에 로그인 회원 정보 보관
         session.setAttribute(SessionConst.LOGIN_USER, loginUser);
 
-        UserData userData = new UserData(loginUser.getId());
-        ApiResponse<UserData> response = new ApiResponse<>(HttpStatus.OK.value(), "로그인 성공", userData);
-        return ResponseEntity.ok(response);
+        UserData userData = null;
+        if (loginUser != null) {
+            userData = new UserData(loginUser.getId());
+        }
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessage.USER_LOGIN_SUCCESS, userData));
     }
 
     @Operation(summary = "로그아웃")
@@ -53,6 +57,6 @@ public class LoginController {
         if (session != null) {
             session.invalidate();
         }
-        return ResponseEntity.ok(new ApiResponse<>(HttpStatus.OK.value(), "로그아웃 성공", null));
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessage.USER_LOGOUT_SUCCESS));
     }
 }

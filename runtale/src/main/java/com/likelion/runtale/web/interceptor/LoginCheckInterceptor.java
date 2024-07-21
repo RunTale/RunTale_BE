@@ -1,8 +1,9 @@
 package com.likelion.runtale.web.interceptor;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.likelion.runtale.common.ApiResponse;
+import com.likelion.runtale.common.response.ErrorMessage;
 import com.likelion.runtale.web.SessionConst;
-import com.likelion.runtale.web.login.loginDto.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -22,7 +23,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             response.setCharacterEncoding("UTF-8");
 
             // JSON 응답 객체 생성
-            ApiResponse<Void> apiResponse = new ApiResponse<>(HttpServletResponse.SC_UNAUTHORIZED, "로그인이 필요합니다.", null);
+            ApiResponse<Void> apiResponse = ApiResponse.error(ErrorMessage.USER_NOT_LOGGED_IN);
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonResponse = objectMapper.writeValueAsString(apiResponse);
 
