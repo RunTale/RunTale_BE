@@ -28,6 +28,11 @@ public class UserService {
         }
     }
 
+    // User 엔티티를 직접 반환하는 메서드 추가
+    public User findUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_EXIST));
+    }
     // 회원가입
     public UserResponse createUser(UserRequest userRequest) {
         User user = userRequest.toUser();
