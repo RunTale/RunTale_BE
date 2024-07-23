@@ -32,7 +32,6 @@ public class RunningController {
         if (loginUser == null) {
             throw new UnauthorizedException(ErrorMessage.USER_NOT_AUTHORIZED);
         }
-        System.out.println(runningRequest.getDistance());
         RunningResponse response = runningService.saveRunning(loginUser.getId(), runningRequest);
         return ResponseEntity.ok(ApiResponse.success(SuccessMessage.RUNNING_INFO_SUCCESS,response));
     }
