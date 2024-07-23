@@ -44,8 +44,14 @@ public class User {
         this.nickname = nickname;
     }
 
-    public void addRunning(Running running) {
+    public void addOrUpdateRunning(Running running) {
+        for (int i = 0; i < runnings.size(); i++) {
+            if (runnings.get(i).getId().equals(running.getId())) {
+                runnings.set(i, running);
+                return;
+            }
+        }
+        this.runnings.add(running);
         running.setUser(this);
-        this.getRunnings().add(running);
     }
 }

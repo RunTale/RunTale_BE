@@ -17,6 +17,12 @@ public class BaseTimeEntity {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdDate;
+
     @LastModifiedDate
+    @Column(nullable = false)
     private LocalDateTime lastModifiedDate;
+
+    public void setModifiedAt(LocalDateTime modifiedAt) {
+        this.lastModifiedDate= modifiedAt;
+    }
 }

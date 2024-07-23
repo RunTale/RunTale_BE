@@ -26,15 +26,15 @@ public class RunningController {
     private final RunningService runningService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> createRunning(
+    public ResponseEntity<ApiResponse<RunningResponse>> createRunning(
             @SessionAttribute(SessionConst.LOGIN_USER) User loginUser,
             @RequestBody RunningRequest runningRequest) {
         if (loginUser == null) {
             throw new UnauthorizedException(ErrorMessage.USER_NOT_AUTHORIZED);
         }
-
-        runningService.saveRunning(loginUser.getId(), runningRequest);
-        return ResponseEntity.ok(ApiResponse.success(SuccessMessage.RUNNING_INFO_SUCCESS));
+        System.out.println(runningRequest.getDistance());
+        RunningResponse response = runningService.saveRunning(loginUser.getId(), runningRequest);
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessage.RUNNING_INFO_SUCCESS,response));
     }
 
     @GetMapping("/user/{userId}")
