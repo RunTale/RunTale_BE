@@ -18,7 +18,7 @@ public enum ErrorMessage {
     USER_NOT_LOGGED_IN(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다."),
     USER_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
     USER_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "로그인 실패"),
-
+    RUNNING_NOT_FOUND(NOT_FOUND, "존재하지 않는 러닝 기록"),
     ;
 
     private final HttpStatus httpStatus;
