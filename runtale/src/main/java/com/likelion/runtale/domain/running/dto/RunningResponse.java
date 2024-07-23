@@ -24,6 +24,6 @@ public class RunningResponse {
         this.pace = running.getPace();
         this.createdDate = running.getCreatedDate();
         this.lastModifiedDate = running.getLastModifiedDate();
-        if (running.getUser() != null) this.userId = running.getUser().getId();
+        this.userId = running.getUser().getId();
     }
 }

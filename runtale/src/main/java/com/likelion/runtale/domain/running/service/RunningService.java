@@ -70,7 +70,7 @@ public class RunningService {
     }
 
     // TTL이 지난 러닝 세션 삭제하는 스케줄러
-    @Scheduled(fixedRate = 60000) // 1분마다 실행
+    @Scheduled(fixedRate = 180  * 1000) // 3분마다 실행
     public void deleteExpiredRunningSessions() {
         LocalDateTime now = LocalDateTime.now();
         List<Running> allRunnings = runningRepository.findAllWithUser();
