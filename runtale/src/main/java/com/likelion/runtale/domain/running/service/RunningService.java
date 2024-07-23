@@ -4,6 +4,7 @@ import com.likelion.runtale.common.exception.BadRequestException;
 import com.likelion.runtale.common.exception.NotFoundException;
 import com.likelion.runtale.common.response.ErrorMessage;
 import com.likelion.runtale.domain.running.dto.RunningRequest;
+import com.likelion.runtale.domain.running.dto.RunningResponse;
 import com.likelion.runtale.domain.running.entity.Running;
 import com.likelion.runtale.domain.running.entity.RunningStatus;
 import com.likelion.runtale.domain.running.repository.RunningRepository;
@@ -24,14 +25,27 @@ public class RunningService {
 
     private final RunningRepository runningRepository;
     private final UserRepository userRepository;
-    private static final int TTL_MINUTES = 30;
+    private static final int TTL_MINUTES = 15;
 
-    public void saveRunning(Long userId, RunningRequest runningRequest) {
+    public RunningResponse saveRunning(Long userId, RunningRequest runningRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_EXIST));
-        Running running = runningRequest.toRunning();
-        user.addRunning(running);  // User의 runnings 리스트에 추가
-        runningRepository.save(running);  // Running 객체를 저장
+        Running running;
+        if (runningRequest.getId() != null) {
+            running = runningRepository.findById(runningRequest.getId())
+                    .orElseThrow(() -> new NotFoundException(ErrorMessage.RUNNING_NOT_FOUND));
+            running.setEndTime(runningRequest.getEndTime());
+            running.setDistance(runningRequest.getDistance());
+            running.setPace(runningRequest.getPace());
+            running.setStatus(runningRequest.getEndTime() == null ? RunningStatus.IN_PROGRESS : RunningStatus.COMPLETED);
+        } else {
+            running = runningRequest.toRunning();
+            running.setUser(user);
+        }
+        running = runningRepository.save(running);
+        running.setModifiedAt(LocalDateTime.now());
+        user.addOrUpdateRunning(running);
+        return new RunningResponse(running);
     }
 
     public List<Running> getRunningsByUserId(Long userId) {
@@ -40,7 +54,7 @@ public class RunningService {
 
     @Transactional(readOnly = true)
     public Running getRunningById(Long id) {
-        return runningRepository.findById(id).orElse(null);
+        return runningRepository.findById(id).orElseThrow(() -> new BadRequestException(ErrorMessage.RUNNING_NOT_FOUND));
     }
 
     public void deleteRunning(Long id) {
