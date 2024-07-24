@@ -87,4 +87,8 @@ public class RunningService {
                 });
     }
 
+    public List<Running> getRunningsByUserIdAndDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+        return runningRepository.findByUserIdAndDateRange(userId, startDate, endDate);
+    }
+
 }
