@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 @Tag(name = "running", description = "running 관련 API")
@@ -62,6 +63,17 @@ public class RunningController {
     public ResponseEntity<ApiResponse<Void>> deleteRunning(@PathVariable Long id) {
         runningService.deleteRunning(id);
         return ResponseEntity.ok(ApiResponse.success(SuccessMessage.RUNNING_DELETE_SUCCESS));
+    }
+    @Operation(summary = "유저 러닝 기록 조회 (한 달)")
+    @GetMapping("/user/{userId}/monthly")
+    public ResponseEntity<ApiResponse<List<RunningResponse>>> getMonthlyRunningsByUserId(@PathVariable Long userId) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime oneMonthAgo = now.minusMonths(1);
+        List<Running> runnings = runningService.getRunningsByUserIdAndDateRange(userId, oneMonthAgo, now);
+        List<RunningResponse> response = runnings.stream()
+                .map(RunningResponse::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessage.RUNNING_INFO_SUCCESS, response));
     }
 }
 
