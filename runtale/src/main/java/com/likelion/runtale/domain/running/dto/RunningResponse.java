@@ -1,6 +1,7 @@
 package com.likelion.runtale.domain.running.dto;
 
 import com.likelion.runtale.domain.running.entity.Running;
+import com.likelion.runtale.domain.running.entity.RunningStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -16,6 +17,7 @@ public class RunningResponse {
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
     private Long userId;
+    private RunningStatus status;
 
     public RunningResponse(Running running) {
         this.id = running.getId();
@@ -25,5 +27,6 @@ public class RunningResponse {
         this.createdDate = running.getCreatedDate();
         this.lastModifiedDate = running.getLastModifiedDate();
         this.userId = running.getUser().getId();
+        this.status = running.getStatus();
     }
 }
