@@ -28,28 +28,30 @@ public class RunningService {
     private static final int TTL_MINUTES = 15;
 
     public RunningResponse saveRunning(Long userId, RunningRequest runningRequest) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_EXIST));
-        Running running;
-        if (runningRequest.getId() != null) {
-            running = runningRepository.findById(runningRequest.getId())
-                    .orElseThrow(() -> new NotFoundException(ErrorMessage.RUNNING_NOT_FOUND));
-            running.setEndTime(runningRequest.getEndTime());
-            running.setDistance(runningRequest.getDistance());
-            running.setPace(runningRequest.getPace());
-            running.setStatus(runningRequest.getEndTime() == null ? RunningStatus.IN_PROGRESS : RunningStatus.COMPLETED);
-        } else {
-            running = runningRequest.toRunning();
-            running.setUser(user);
-        }
-        running = runningRepository.save(running);
-        running.setModifiedAt(LocalDateTime.now());
+        User user = findUserById(userId);
+        Running running = getOrCreateRunning(runningRequest);
+        running.updateRunning(runningRequest);
+
+        if (running.getUser() == null) running.setUser(user);
+
         user.addOrUpdateRunning(running);
+        runningRepository.save(running);
+
         return new RunningResponse(running);
     }
-
+    private User findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_EXIST));
+    }
+    private Running getOrCreateRunning(RunningRequest runningRequest) {
+        if (runningRequest.getId() != null) {
+            return runningRepository.findById(runningRequest.getId())
+                    .orElseThrow(() -> new NotFoundException(ErrorMessage.RUNNING_NOT_FOUND));
+        }
+        return runningRequest.toRunning();
+    }
     public List<Running> getRunningsByUserId(Long userId) {
-        return runningRepository.findByUserIdWithUser(userId);
+        return runningRepository.findByUserId(userId);
     }
 
     @Transactional(readOnly = true)
@@ -73,7 +75,7 @@ public class RunningService {
     @Scheduled(fixedRate = 180  * 1000) // 3분마다 실행
     public void deleteExpiredRunningSessions() {
         LocalDateTime now = LocalDateTime.now();
-        List<Running> allRunnings = runningRepository.findAllWithUser();
+        List<Running> allRunnings = runningRepository.findAll();
         allRunnings.stream()
                 .filter(running -> running.getStatus() == RunningStatus.IN_PROGRESS && running.getLastModifiedDate().plusMinutes(TTL_MINUTES).isBefore(now))
                 .forEach(running -> {
