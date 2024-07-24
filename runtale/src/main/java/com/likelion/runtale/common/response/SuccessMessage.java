@@ -19,6 +19,8 @@ public enum SuccessMessage {
     LOGIN_ID_VALIDATE_SUCCESS(OK, "아이디 중복 체크 성공"),
     RUNNING_INFO_SUCCESS(OK,"러닝 정보 요청 성공"),
     RUNNING_DELETE_SUCCESS(OK,"러닝 삭제 성공"),
+    TIER_INFO_SUCCESS(OK,"티어 정보 요청 성공"),
+    TIER_ASSIGN_SUCCESS(OK,"티어 할당 성공")
     ;
 
     private final HttpStatus httpStatus;
