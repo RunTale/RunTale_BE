@@ -76,4 +76,3 @@ public class RunningController {
         return ResponseEntity.ok(ApiResponse.success(SuccessMessage.RUNNING_INFO_SUCCESS, response));
     }
 }
-

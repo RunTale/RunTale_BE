@@ -1,10 +1,13 @@
 package com.likelion.runtale.domain.user.entity;
 
 import com.likelion.runtale.domain.running.entity.Running;
+import com.likelion.runtale.domain.tier.entity.Tier;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Getter
@@ -24,6 +27,14 @@ public class User {
 
     @Column(nullable = false)
     private String nickname;
+
+    private double score;
+
+    private double percentile;
+
+    @ManyToOne
+    @JoinColumn(name = "tier_id")
+    private Tier tier;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Running> runnings;
@@ -53,5 +64,40 @@ public class User {
         }
         this.runnings.add(running);
         running.setUser(this);
+    }
+
+    public int getRunningDays(int year, int month) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
+        return (int) runnings.stream()
+                .filter(running -> !running.getCreatedDate().toLocalDate().isBefore(startDate) &&
+                        !running.getCreatedDate().toLocalDate().isAfter(endDate))
+                .map(running -> running.getCreatedDate().toLocalDate())
+                .distinct()
+                .count();
+    }
+
+    public double getTotalDistance(int year, int month) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
+        return runnings.stream()
+                .filter(running -> !running.getCreatedDate().toLocalDate().isBefore(startDate) &&
+                        !running.getCreatedDate().toLocalDate().isAfter(endDate))
+                .mapToDouble(Running::getDistance)
+                .sum();
+    }
+
+    public double getAveragePace(int year, int month) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
+        return runnings.stream()
+                .filter(running -> !running.getCreatedDate().toLocalDate().isBefore(startDate) &&
+                        !running.getCreatedDate().toLocalDate().isAfter(endDate))
+                .mapToDouble(Running::getPace)
+                .average()
+                .orElse(0.0);
     }
 }
