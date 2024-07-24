@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 
 @Service
@@ -88,6 +89,12 @@ public class RunningService {
     }
 
     public List<Running> getRunningsByUserIdAndDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+        return runningRepository.findByUserIdAndDateRange(userId, startDate, endDate);
+    }
+    public List<Running> getRunningsByUserIdAndMonth(Long userId, int year, int month) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDateTime startDate = yearMonth.atDay(1).atStartOfDay();
+        LocalDateTime endDate = yearMonth.atEndOfMonth().atTime(23, 59, 59);
         return runningRepository.findByUserIdAndDateRange(userId, startDate, endDate);
     }
 
