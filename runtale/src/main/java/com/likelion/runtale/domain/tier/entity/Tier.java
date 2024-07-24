@@ -18,4 +18,7 @@ public class Tier {
 
     @Column
     private String description;     // 티어 설명
+
+    @Column
+    private String imageUrl;
 }
