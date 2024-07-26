@@ -1,5 +1,7 @@
 package com.likelion.runtale.domain.tier.service;
 
+import com.likelion.runtale.common.exception.NotFoundException;
+import com.likelion.runtale.common.response.ErrorMessage;
 import com.likelion.runtale.domain.tier.dto.UserTierInfo;
 import com.likelion.runtale.domain.tier.entity.Tier;
 import com.likelion.runtale.domain.tier.repository.TierRepository;
@@ -13,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+
 
 @Service
 @RequiredArgsConstructor
@@ -91,7 +95,7 @@ public class TierService {
 
     private Tier findTierByName(String name) {
         return tierRepository.findByName(name)
-                .orElseThrow(() -> new RuntimeException("Tier not found: " + name));
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.TIER_NOT_FOUND));
     }
 
     @Scheduled(cron = "0 0 0 1 * ?") // 매달 1일 자정에 실행
