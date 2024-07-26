@@ -19,6 +19,9 @@ public enum ErrorMessage {
     USER_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "권한이 없습니다."),
     USER_LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "로그인 실패"),
     RUNNING_NOT_FOUND(NOT_FOUND, "존재하지 않는 러닝 기록"),
+    TIER_NOT_FOUND(NOT_FOUND, "존재하지 않는 티어"),
+    SCENARIO_NOT_FOUND(NOT_FOUND, "존재하지 않는 시나리오"),
+    SCENARIO_STEP_NOT_FOUND(NOT_FOUND, "존재하지 않는 시나리오 스텝"),
     ;
 
     private final HttpStatus httpStatus;
