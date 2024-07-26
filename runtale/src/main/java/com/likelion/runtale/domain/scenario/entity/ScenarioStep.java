@@ -1,26 +1,34 @@
 package com.likelion.runtale.domain.scenario.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
-
-import java.util.List;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
+@NoArgsConstructor
 public class ScenarioStep {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "scenario_id")
+    @JoinColumn(name = "scenario_id", nullable = false)
+    @JsonBackReference
     private Scenario scenario;
 
-    private int stepNumber;          // 단계 번호
-    private String audioUrl;         // 오디오 URL
-    private String videoUrl;         // 비디오 URL (옵션)
-    private String text;             // 단계 설명
+    @Column(nullable = false)
+    private int stepNumber; // 단계 번호
 
-    @OneToMany(mappedBy = "scenarioStep", cascade = CascadeType.ALL)
-    private List<ScenarioTrigger> triggers; // 트리거들
+    @Column(nullable = false, length = 255)
+    private String audioUrl; // 오디오 URL
+
+    @Column(length = 255)
+    private String videoUrl; // 비디오 URL (옵션)
+
+    @Column(length = 1000)
+    private String text; // 단계 설명
 }
