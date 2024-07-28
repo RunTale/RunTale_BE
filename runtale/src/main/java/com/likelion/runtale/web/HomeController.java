@@ -20,6 +20,7 @@ public ResponseEntity<ApiResponse<UserData>> homeLogin(@Login User loginUser) {
     if (loginUser == null) {
         return ResponseEntity.status(ErrorMessage.USER_NOT_LOGGED_IN.getHttpStatus())
                 .body(ApiResponse.error(ErrorMessage.USER_NOT_LOGGED_IN));
+        // for ci-cd test
     }
 
     UserData userData = new UserData(loginUser.getId());
