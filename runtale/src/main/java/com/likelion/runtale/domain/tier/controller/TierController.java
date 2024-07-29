@@ -30,6 +30,7 @@ public class TierController {
     public ResponseEntity<ApiResponse<TierResponse>> getUserTierAndPercentile(@PathVariable Long userId) {
         User user = userService.findUserById(userId);
         TierResponse response = new TierResponse(
+                user.getNickname(),
                 user.getTier().getName(),
                 user.getTier().getDescription(),
                 user.getTier().getImageUrl(),
