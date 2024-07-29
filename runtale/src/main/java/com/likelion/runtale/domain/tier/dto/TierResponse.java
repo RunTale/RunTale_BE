@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class TierResponse {
+    private String nickname;
     private String tierName;
     private String description;
     private String imageUrl;
