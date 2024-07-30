@@ -32,6 +32,8 @@ public class User {
 
     private double percentile;
 
+    private double progress;
+
     @ManyToOne
     @JoinColumn(name = "tier_id")
     private Tier tier;

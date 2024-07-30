@@ -34,7 +34,8 @@ public class TierController {
                 user.getTier().getName(),
                 user.getTier().getDescription(),
                 user.getTier().getImageUrl(),
-                user.getPercentile()
+                user.getPercentile(),
+                user.getProgress()
         );
         return ResponseEntity.ok(ApiResponse.success(SuccessMessage.TIER_INFO_SUCCESS, response));
     }
