@@ -11,4 +11,5 @@ public class TierResponse {
     private String description;
     private String imageUrl;
     private double percentile;
+    private double progress;
 }

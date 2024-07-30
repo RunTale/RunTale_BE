@@ -49,14 +49,19 @@ public class TierService {
 
             if (percentile > 80) {
                 user.setTier(findTierByName("달팽이"));
+                user.setProgress(percentile-80);
             } else if (percentile > 60) {
                 user.setTier(findTierByName("거북이"));
+                user.setProgress(percentile-60);
             } else if (percentile > 40) {
                 user.setTier(findTierByName("토끼"));
+                user.setProgress(percentile-40);
             } else if (percentile > 20) {
                 user.setTier(findTierByName("말"));
+                user.setProgress(percentile-20);
             } else {
                 user.setTier(findTierByName("치타"));
+                user.setProgress(percentile);
             }
 
             userRepository.save(user);
