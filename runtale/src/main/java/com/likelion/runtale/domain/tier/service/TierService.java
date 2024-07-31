@@ -16,8 +16,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
-
 @Service
 @RequiredArgsConstructor
 public class TierService {
@@ -29,42 +27,74 @@ public class TierService {
     public void assignTiersToUsers(int year, int month) {
         List<User> users = userRepository.findAll();
 
-        // 사용자 점수 계산
-        users.forEach(user -> {
+        // 러닝 기록이 있는 사용자와 없는 사용자로 분리
+        List<User> usersWithRuns = users.stream()
+                .filter(user -> !user.getRunnings().isEmpty())
+                .toList();
+
+        List<User> usersWithoutRuns = users.stream()
+                .filter(user -> user.getRunnings().isEmpty())
+                .collect(Collectors.toList());
+
+        // 러닝 기록이 있는 사용자 점수 계산
+        usersWithRuns.forEach(user -> {
             double score = calculateUserScore(user, year, month);
             user.setScore(score);
         });
 
         // 점수 기준으로 사용자 정렬
-        List<User> sortedUsers = users.stream()
+        List<User> sortedUsersWithRuns = usersWithRuns.stream()
                 .sorted((u1, u2) -> Double.compare(u2.getScore(), u1.getScore()))
                 .toList();
 
         // 상대적 순위에 따라 티어 할당
-        int totalUsers = sortedUsers.size();
-        for (int i = 0; i < totalUsers; i++) {
-            User user = sortedUsers.get(i);
-            double percentile = (double) (i + 1) / totalUsers * 100;
-            user.setPercentile(percentile);
-
-            if (percentile > 80) {
-                user.setTier(findTierByName("달팽이"));
-                user.setProgress(percentile-80);
-            } else if (percentile > 60) {
-                user.setTier(findTierByName("거북이"));
-                user.setProgress(percentile-60);
-            } else if (percentile > 40) {
-                user.setTier(findTierByName("토끼"));
-                user.setProgress(percentile-40);
-            } else if (percentile > 20) {
-                user.setTier(findTierByName("말"));
-                user.setProgress(percentile-20);
-            } else {
-                user.setTier(findTierByName("치타"));
-                user.setProgress(percentile);
-            }
-
+        int totalUsersWithRuns = sortedUsersWithRuns.size();
+        for (int i = 0; i < totalUsersWithRuns; i++) {
+            User user = sortedUsersWithRuns.get(i);
+            double percentile = (double) (i + 1) / totalUsersWithRuns * 100;
+            assignTierBasedOnPercentile(user, percentile);
             userRepository.save(user);
+        }
+
+        // 러닝 기록이 없는 사용자에게 디폴트 티어 할당
+        Tier defaultTier = findTierByName("돌멩이");
+        usersWithoutRuns.forEach(user -> {
+            user.setTier(defaultTier);
+            user.setScore(0);
+            user.setPercentile(0);
+            user.setProgress(0);
+            userRepository.save(user);
+        });
+    }
+
+    @Transactional
+    public void assignDefaultTierToUser(User user) {
+        // 러닝 기록이 없는 경우 디폴트 티어 할당
+        Tier defaultTier = findTierByName("돌멩이");
+        user.setTier(defaultTier);
+        user.setScore(0);
+        user.setPercentile(0);
+        user.setProgress(0);
+        userRepository.save(user);
+    }
+
+    private void assignTierBasedOnPercentile(User user, double percentile) {
+        user.setPercentile(percentile);
+        if (percentile > 80) {
+            user.setTier(findTierByName("달팽이"));
+            user.setProgress(percentile - 80);
+        } else if (percentile > 60) {
+            user.setTier(findTierByName("거북이"));
+            user.setProgress(percentile - 60);
+        } else if (percentile > 40) {
+            user.setTier(findTierByName("토끼"));
+            user.setProgress(percentile - 40);
+        } else if (percentile > 20) {
+            user.setTier(findTierByName("말"));
+            user.setProgress(percentile - 20);
+        } else {
+            user.setTier(findTierByName("치타"));
+            user.setProgress(percentile);
         }
     }
 
@@ -90,7 +120,7 @@ public class TierService {
 
         // averagePace가 0이 되지 않도록 처리
         if (averagePace == 0) {
-            averagePace = 1; // 기본 값 설정, 필요에 따라 조정 가능
+            averagePace = 1;
         }
 
         return (runningDays * runningDaysWeight) +
@@ -129,4 +159,3 @@ public class TierService {
                 .collect(Collectors.toList());
     }
 }
-
