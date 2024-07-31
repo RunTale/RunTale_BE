@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -105,7 +106,10 @@ public class RunningService {
     }
 
     public RunningStatsResponse getRunningStats(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
-        List<Running> runnings = runningRepository.findByUserIdAndDateRange(userId, startDate, endDate);
+        List<Running> runnings = runningRepository.findByUserIdAndDateRange(userId, startDate, endDate)
+                .stream()
+                .filter(running -> running.getStatus() == RunningStatus.COMPLETED)
+                .collect(Collectors.toList());
 
         int totalRunningCount = runnings.size();
         double totalDistance = runnings.stream().mapToDouble(Running::getDistance).sum();
