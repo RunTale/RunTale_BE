@@ -33,8 +33,9 @@ public class LoginController {
 
         if (loginUser == null) {
             // 로그인 실패인 경우
-            ResponseEntity.status(ErrorMessage.USER_LOGIN_FAILED.getHttpStatus())
+            return ResponseEntity.status(ErrorMessage.USER_LOGIN_FAILED.getHttpStatus())
                     .body(ApiResponse.error(ErrorMessage.USER_LOGIN_FAILED));
+            // return이 안 돼있어서 항상 200 반환했었음.
         }
 
         //로그인 성공 처리
