@@ -28,4 +28,5 @@ public class ScenarioService {
         Optional<ScenarioStep> scenarioStep = scenarioStepRepository.findByScenarioIdAndStepNumber(scenarioId, stepNumber);
         return scenarioStep.orElseThrow(() -> new NotFoundException(ErrorMessage.SCENARIO_STEP_NOT_FOUND));
     }
+    // 후에 DELETE 생성시 cascade 설정 바꿔줘야함.
 }

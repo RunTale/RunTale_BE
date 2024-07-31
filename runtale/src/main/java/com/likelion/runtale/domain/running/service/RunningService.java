@@ -5,9 +5,12 @@ import com.likelion.runtale.common.exception.NotFoundException;
 import com.likelion.runtale.common.response.ErrorMessage;
 import com.likelion.runtale.domain.running.dto.RunningRequest;
 import com.likelion.runtale.domain.running.dto.RunningResponse;
+import com.likelion.runtale.domain.running.dto.RunningStatsResponse;
 import com.likelion.runtale.domain.running.entity.Running;
 import com.likelion.runtale.domain.running.entity.RunningStatus;
 import com.likelion.runtale.domain.running.repository.RunningRepository;
+import com.likelion.runtale.domain.scenario.entity.Scenario;
+import com.likelion.runtale.domain.scenario.repository.ScenarioRepository;
 import com.likelion.runtale.domain.user.entity.User;
 import com.likelion.runtale.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,14 +29,17 @@ public class RunningService {
 
     private final RunningRepository runningRepository;
     private final UserRepository userRepository;
+    private final ScenarioRepository scenarioRepository;
     private static final int TTL_MINUTES = 15;
 
     public RunningResponse saveRunning(Long userId, RunningRequest runningRequest) {
         User user = findUserById(userId);
+        Scenario scenario = findScenarioById(runningRequest.getScenarioId());
         Running running = getOrCreateRunning(runningRequest);
         running.updateRunning(runningRequest);
 
         if (running.getUser() == null) running.setUser(user);
+        if (running.getScenario() == null) running.setScenario(scenario);
 
         user.addOrUpdateRunning(running);
         runningRepository.save(running);
@@ -44,6 +50,10 @@ public class RunningService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_EXIST));
     }
+    private Scenario findScenarioById(Long scenarioId) {
+        return scenarioRepository.findById(scenarioId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.SCENARIO_NOT_FOUND));
+    }
     private Running getOrCreateRunning(RunningRequest runningRequest) {
         if (runningRequest.getId() != null) {
             return runningRepository.findById(runningRequest.getId())
@@ -51,6 +61,8 @@ public class RunningService {
         }
         return runningRequest.toRunning();
     }
+
+
     public List<Running> getRunningsByUserId(Long userId) {
         return runningRepository.findByUserId(userId);
     }
@@ -90,6 +102,29 @@ public class RunningService {
 
     public List<Running> getRunningsByUserIdAndDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
         return runningRepository.findByUserIdAndDateRange(userId, startDate, endDate);
+    }
+
+    public RunningStatsResponse getRunningStats(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+        List<Running> runnings = runningRepository.findByUserIdAndDateRange(userId, startDate, endDate);
+
+        int totalRunningCount = runnings.size();
+        double totalDistance = runnings.stream().mapToDouble(Running::getDistance).sum();
+        double totalPace = runnings.stream().mapToDouble(Running::getPace).sum();
+        int targetPaceAchievedCount = (int) runnings.stream().filter(running -> running.getPace() <= running.getTargetPace()).count();
+        int targetDistanceAchievedCount = (int) runnings.stream().filter(running -> running.getDistance() >= running.getTargetDistance()).count();
+        double averagePace = calculateAveragePace(totalPace, totalRunningCount);
+
+        return new RunningStatsResponse(
+                runnings,
+                targetPaceAchievedCount,
+                targetDistanceAchievedCount,
+                totalDistance,
+                totalRunningCount,
+                averagePace
+        );
+    }
+    private double calculateAveragePace(double totalPace, int totalRunningCount) {
+        return totalRunningCount > 0 ? totalPace / totalRunningCount : 0;
     }
     public List<Running> getRunningsByUserIdAndMonth(Long userId, int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
