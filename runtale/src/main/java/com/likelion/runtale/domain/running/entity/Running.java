@@ -1,6 +1,9 @@
 package com.likelion.runtale.domain.running.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.likelion.runtale.domain.running.dto.RunningRequest;
+import com.likelion.runtale.domain.scenario.entity.Scenario;
 import com.likelion.runtale.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,13 +29,23 @@ public class Running extends BaseTimeEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "scenario_id")
+    @JsonIgnore
+    private Scenario scenario;
 
     private LocalDateTime endTime;
 
     private Double distance; // km 단위
 
     private Double pace; // 분/km 단위
+
+    private Double targetPace;
+
+    private Double targetDistance;
 
     @Enumerated(EnumType.STRING)
     private RunningStatus status;
@@ -42,6 +55,8 @@ public class Running extends BaseTimeEntity{
         this.distance = runningRequest.getDistance();
         this.pace = runningRequest.getPace();
         this.status = runningRequest.getEndTime() == null ? RunningStatus.IN_PROGRESS : RunningStatus.COMPLETED;
+        this.targetPace = runningRequest.getTargetPace();
+        this.targetDistance = runningRequest.getTargetDistance();
         this.setModifiedAt(LocalDateTime.now());
     }
 }

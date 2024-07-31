@@ -6,6 +6,7 @@ import com.likelion.runtale.common.response.ErrorMessage;
 import com.likelion.runtale.common.response.SuccessMessage;
 import com.likelion.runtale.domain.running.dto.RunningRequest;
 import com.likelion.runtale.domain.running.dto.RunningResponse;
+import com.likelion.runtale.domain.running.dto.RunningStatsResponse;
 import com.likelion.runtale.domain.running.entity.Running;
 import com.likelion.runtale.domain.running.service.RunningService;
 import com.likelion.runtale.domain.user.entity.User;
@@ -66,13 +67,10 @@ public class RunningController {
     }
     @Operation(summary = "유저 러닝 기록 조회 (한 달)")
     @GetMapping("/user/{userId}/monthly")
-    public ResponseEntity<ApiResponse<List<RunningResponse>>> getMonthlyRunningsByUserId(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse<RunningStatsResponse>> getMonthlyRunningsByUserId(@PathVariable Long userId) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneMonthAgo = now.minusMonths(1);
-        List<Running> runnings = runningService.getRunningsByUserIdAndDateRange(userId, oneMonthAgo, now);
-        List<RunningResponse> response = runnings.stream()
-                .map(RunningResponse::new)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(ApiResponse.success(SuccessMessage.RUNNING_INFO_SUCCESS, response));
+        RunningStatsResponse runningStatsResponse = runningService.getRunningStats(userId,oneMonthAgo,now);
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessage.RUNNING_INFO_SUCCESS, runningStatsResponse));
     }
 }

@@ -14,9 +14,12 @@ public class RunningResponse {
     private LocalDateTime endTime;
     private Double distance; // km 단위
     private Double pace; // 분/km 단위
+    private Double targetPace;
+    private Double targetDistance;
     private LocalDateTime createdDate;
     private LocalDateTime lastModifiedDate;
     private Long userId;
+    private Long scenarioId;
     private RunningStatus status;
 
     public RunningResponse(Running running) {
@@ -28,5 +31,8 @@ public class RunningResponse {
         this.lastModifiedDate = running.getLastModifiedDate();
         this.userId = running.getUser().getId();
         this.status = running.getStatus();
+        this.targetDistance = running.getTargetDistance();
+        this.targetPace = running.getTargetPace();
+        this.scenarioId = running.getScenario().getId();
     }
 }
