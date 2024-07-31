@@ -1,5 +1,6 @@
 package com.likelion.runtale.domain.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.likelion.runtale.domain.running.entity.Running;
 import com.likelion.runtale.domain.tier.entity.Tier;
 import jakarta.persistence.*;
@@ -40,6 +41,7 @@ public class User {
     private Tier tier;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonManagedReference
     private List<Running> runnings;
 
     public User() {
