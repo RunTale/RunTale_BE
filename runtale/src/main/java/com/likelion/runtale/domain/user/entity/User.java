@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -101,5 +102,8 @@ public class User {
                 .mapToDouble(Running::getPace)
                 .average()
                 .orElse(0.0);
+    }
+    public List<Running> getRunnings() {
+        return runnings != null ? runnings : Collections.emptyList();
     }
 }
