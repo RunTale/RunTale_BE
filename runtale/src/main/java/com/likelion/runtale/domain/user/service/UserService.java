@@ -3,6 +3,7 @@ package com.likelion.runtale.domain.user.service;
 import com.likelion.runtale.common.exception.BadRequestException;
 import com.likelion.runtale.common.exception.NotFoundException;
 import com.likelion.runtale.common.response.ErrorMessage;
+import com.likelion.runtale.domain.tier.service.TierService;
 import com.likelion.runtale.domain.user.dto.UserRequest;
 import com.likelion.runtale.domain.user.dto.UserResponse;
 import com.likelion.runtale.domain.user.entity.User;
@@ -10,6 +11,7 @@ import com.likelion.runtale.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +19,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final TierService tierService;
+
 
     public UserResponse getUserById(Long id) {
         Optional<User> user = userRepository.findById(id);
@@ -38,8 +42,13 @@ public class UserService {
         User user = userRequest.toUser();
         validateDuplicateMember(user);
         userRepository.save(user);
+
+        // 회원가입 후 디폴트 티어 할당
+        tierService.assignDefaultTierToUser(user);
+
         return new UserResponse(user.getId(), user.getLoginId(), user.getNickname());
     }
+
     private void validateDuplicateMember(User user) {
         List<User> findMembers = userRepository.findByLoginId(user.getLoginId());
         if (!findMembers.isEmpty()) {

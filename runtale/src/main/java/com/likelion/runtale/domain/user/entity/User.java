@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -70,23 +71,23 @@ public class User {
         running.setUser(this);
     }
 
-    public int getRunningDays(int year, int month) {
-        YearMonth yearMonth = YearMonth.of(year, month);
-        LocalDate startDate = yearMonth.atDay(1);
-        LocalDate endDate = yearMonth.atEndOfMonth();
-        return (int) runnings.stream()
-                .filter(running -> !running.getCreatedDate().toLocalDate().isBefore(startDate) &&
-                        !running.getCreatedDate().toLocalDate().isAfter(endDate))
-                .map(running -> running.getCreatedDate().toLocalDate())
-                .distinct()
-                .count();
-    }
+public int getRunningDays(int year, int month) {
+    YearMonth yearMonth = YearMonth.of(year, month);
+    LocalDate startDate = yearMonth.atDay(1);
+    LocalDate endDate = yearMonth.atEndOfMonth();
+    return (int) getRunnings().stream()
+            .filter(running -> !running.getCreatedDate().toLocalDate().isBefore(startDate) &&
+                    !running.getCreatedDate().toLocalDate().isAfter(endDate))
+            .map(running -> running.getCreatedDate().toLocalDate())
+            .distinct()
+            .count();
+}
 
     public double getTotalDistance(int year, int month) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
-        return runnings.stream()
+        return getRunnings().stream()
                 .filter(running -> !running.getCreatedDate().toLocalDate().isBefore(startDate) &&
                         !running.getCreatedDate().toLocalDate().isAfter(endDate))
                 .mapToDouble(Running::getDistance)
@@ -97,11 +98,15 @@ public class User {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
-        return runnings.stream()
+        return getRunnings().stream()
                 .filter(running -> !running.getCreatedDate().toLocalDate().isBefore(startDate) &&
                         !running.getCreatedDate().toLocalDate().isAfter(endDate))
-                .mapToDouble(Running::getPace)
+                .mapToDouble(running -> running.getPace() != null ? running.getPace() : 0.0)
                 .average()
                 .orElse(0.0);
+    }
+
+    public List<Running> getRunnings() {
+        return runnings != null ? runnings : Collections.emptyList();
     }
 }
