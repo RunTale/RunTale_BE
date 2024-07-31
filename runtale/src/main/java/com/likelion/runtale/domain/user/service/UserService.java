@@ -42,8 +42,13 @@ public class UserService {
         User user = userRequest.toUser();
         validateDuplicateMember(user);
         userRepository.save(user);
+
+        // 회원가입 후 디폴트 티어 할당
+        tierService.assignDefaultTierToUser(user);
+
         return new UserResponse(user.getId(), user.getLoginId(), user.getNickname());
     }
+
     private void validateDuplicateMember(User user) {
         List<User> findMembers = userRepository.findByLoginId(user.getLoginId());
         if (!findMembers.isEmpty()) {
