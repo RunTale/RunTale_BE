@@ -6,6 +6,7 @@ import com.likelion.runtale.common.response.ErrorMessage;
 import com.likelion.runtale.domain.running.dto.RunningRequest;
 import com.likelion.runtale.domain.running.dto.RunningResponse;
 import com.likelion.runtale.domain.running.dto.RunningStatsResponse;
+import com.likelion.runtale.domain.running.entity.Location;
 import com.likelion.runtale.domain.running.entity.Running;
 import com.likelion.runtale.domain.running.entity.RunningStatus;
 import com.likelion.runtale.domain.running.repository.RunningRepository;
@@ -37,11 +38,11 @@ public class RunningService {
         User user = findUserById(userId);
         Scenario scenario = findScenarioById(runningRequest.getScenarioId());
         Running running = getOrCreateRunning(runningRequest);
-        running.updateRunning(runningRequest);
 
         if (running.getUser() == null) running.setUser(user);
         if (running.getScenario() == null) running.setScenario(scenario);
 
+        updateRunningWithRequest(running, runningRequest);
         user.addOrUpdateRunning(running);
         runningRepository.save(running);
 
@@ -60,9 +61,25 @@ public class RunningService {
             return runningRepository.findById(runningRequest.getId())
                     .orElseThrow(() -> new NotFoundException(ErrorMessage.RUNNING_NOT_FOUND));
         }
-        return runningRequest.toRunning();
+        return new Running();
     }
 
+    private void updateRunningWithRequest(Running running, RunningRequest runningRequest) {
+        running.setEndTime(runningRequest.getEndTime());
+        running.setDistance(runningRequest.getDistance());
+        running.setPace(runningRequest.getPace());
+        running.setStatus(runningRequest.getEndTime() == null ? RunningStatus.IN_PROGRESS : RunningStatus.COMPLETED);
+        running.setTargetPace(runningRequest.getTargetPace());
+        running.setTargetDistance(runningRequest.getTargetDistance());
+        running.setModifiedAt(LocalDateTime.now());
+
+        if (runningRequest.getLatitude() != null && runningRequest.getLongitude() != null) {
+            Location location = new Location();
+            location.setLatitude(runningRequest.getLatitude());
+            location.setLongitude(runningRequest.getLongitude());
+            running.getLocations().add(location);
+        }
+    }
 
     public List<Running> getRunningsByUserId(Long userId) {
         return runningRepository.findByUserId(userId);
