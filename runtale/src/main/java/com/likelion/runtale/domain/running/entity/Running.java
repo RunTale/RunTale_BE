@@ -6,15 +6,13 @@ import com.likelion.runtale.domain.running.dto.RunningRequest;
 import com.likelion.runtale.domain.scenario.entity.Scenario;
 import com.likelion.runtale.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -50,13 +48,7 @@ public class Running extends BaseTimeEntity{
     @Enumerated(EnumType.STRING)
     private RunningStatus status;
 
-    public void updateRunning(RunningRequest runningRequest) {
-        this.endTime = runningRequest.getEndTime();
-        this.distance = runningRequest.getDistance();
-        this.pace = runningRequest.getPace();
-        this.status = runningRequest.getEndTime() == null ? RunningStatus.IN_PROGRESS : RunningStatus.COMPLETED;
-        this.targetPace = runningRequest.getTargetPace();
-        this.targetDistance = runningRequest.getTargetDistance();
-        this.setModifiedAt(LocalDateTime.now());
-    }
+    @ElementCollection
+    @CollectionTable(name = "running_locations", joinColumns = @JoinColumn(name = "running_id"))
+    private List<Location> locations = new ArrayList<>();
 }
