@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -21,6 +23,7 @@ public class RunningResponse {
     private Long userId;
     private Long scenarioId;
     private RunningStatus status;
+    private List<LocationResponse> locations;
 
     public RunningResponse(Running running) {
         this.id = running.getId();
@@ -34,5 +37,8 @@ public class RunningResponse {
         this.targetDistance = running.getTargetDistance();
         this.targetPace = running.getTargetPace();
         this.scenarioId = running.getScenario().getId();
+        this.locations = running.getLocations().stream()
+                .map(LocationResponse::new)
+                .collect(Collectors.toList());
     }
 }
