@@ -35,12 +35,14 @@ public class RunningService {
     private static final int TTL_MINUTES = 15;
 
     public RunningResponse saveRunning(Long userId, RunningRequest runningRequest) {
-        User user = findUserById(userId);
-        Scenario scenario = findScenarioById(runningRequest.getScenarioId());
         Running running = getOrCreateRunning(runningRequest);
+        User user = findUserById(userId);
 
-        if (running.getUser() == null) running.setUser(user);
-        if (running.getScenario() == null) running.setScenario(scenario);
+        if (running.getId() == null) {
+            Scenario scenario = findScenarioById(runningRequest.getScenarioId());
+            running.setUser(user);
+            running.setScenario(scenario);
+        }
 
         updateRunningWithRequest(running, runningRequest);
         user.addOrUpdateRunning(running);
@@ -69,8 +71,10 @@ public class RunningService {
         running.setDistance(runningRequest.getDistance());
         running.setPace(runningRequest.getPace());
         running.setStatus(runningRequest.getEndTime() == null ? RunningStatus.IN_PROGRESS : RunningStatus.COMPLETED);
-        running.setTargetPace(runningRequest.getTargetPace());
-        running.setTargetDistance(runningRequest.getTargetDistance());
+        if(running.getTargetDistance() == null && running.getTargetPace() == null) {
+            running.setTargetPace(runningRequest.getTargetPace());
+            running.setTargetDistance(runningRequest.getTargetDistance());
+        }
         running.setModifiedAt(LocalDateTime.now());
 
         if (runningRequest.getLatitude() != null && runningRequest.getLongitude() != null) {
