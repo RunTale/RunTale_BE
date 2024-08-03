@@ -15,7 +15,7 @@ public class RunningResponse {
     private Long id;
     private LocalDateTime endTime;
     private Double distance; // km 단위
-    private Double pace; // 분/km 단위
+    private Double pace;
     private Double targetPace;
     private Double targetDistance;
     private LocalDateTime createdDate;
@@ -36,7 +36,7 @@ public class RunningResponse {
         this.status = running.getStatus();
         this.targetDistance = running.getTargetDistance();
         this.targetPace = running.getTargetPace();
-        this.scenarioId = running.getScenario().getId();
+        this.scenarioId = running.getScenario() != null ? running.getScenario().getId() : null; // null 검사
         this.locations = running.getLocations().stream()
                 .map(LocationResponse::new)
                 .collect(Collectors.toList());
