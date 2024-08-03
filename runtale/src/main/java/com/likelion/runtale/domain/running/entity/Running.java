@@ -31,7 +31,7 @@ public class Running extends BaseTimeEntity{
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "scenario_id")
+    @JoinColumn(name = "scenario_id", nullable = true)
     @JsonIgnore
     private Scenario scenario;
 

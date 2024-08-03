@@ -20,8 +20,8 @@ public enum SuccessMessage {
     RUNNING_INFO_SUCCESS(OK,"러닝 정보 요청 성공"),
     RUNNING_DELETE_SUCCESS(OK,"러닝 삭제 성공"),
     TIER_INFO_SUCCESS(OK,"티어 정보 요청 성공"),
-    TIER_ASSIGN_SUCCESS(OK,"티어 할당 성공")
-    ;
+    TIER_ASSIGN_SUCCESS(OK,"티어 할당 성공"),
+    SCENARIO_STEP_SUCCESS(OK,"시나리오 스텝 요청 성공"),;
 
     private final HttpStatus httpStatus;
     private final String message;
