@@ -1,6 +1,7 @@
 package com.likelion.runtale.domain.running.controller;
 
 import com.likelion.runtale.common.ApiResponse;
+import com.likelion.runtale.common.exception.NotFoundException;
 import com.likelion.runtale.common.exception.UnauthorizedException;
 import com.likelion.runtale.common.response.ErrorMessage;
 import com.likelion.runtale.common.response.SuccessMessage;
@@ -15,6 +16,7 @@ import com.likelion.runtale.web.SessionConst;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

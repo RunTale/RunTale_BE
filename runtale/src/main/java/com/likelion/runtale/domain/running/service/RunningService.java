@@ -94,6 +94,8 @@ public class RunningService {
         return runningRepository.findById(id).orElseThrow(() -> new BadRequestException(ErrorMessage.RUNNING_NOT_FOUND));
     }
 
+
+
     public void deleteRunning(Long id) {
         Running running = runningRepository.findById(id)
                 .orElseThrow(() -> new BadRequestException(ErrorMessage.RUNNING_NOT_FOUND));
