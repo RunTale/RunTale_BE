@@ -3,11 +3,14 @@ package com.likelion.runtale.common;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.likelion.runtale.common.response.ErrorMessage;
 import com.likelion.runtale.common.response.SuccessMessage;
+import com.likelion.runtale.domain.running.dto.RunningResponse;
 import jakarta.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
@@ -45,4 +48,7 @@ public class ApiResponse<T> {
         return new ApiResponse<>(error.getHttpStatusValue(), message, data);
     }
 
+    public static ApiResponse<List<RunningResponse>> failure(ErrorMessage errorMessage) {
+        return new ApiResponse<>(errorMessage.getHttpStatusValue(), errorMessage.getMessage());
+    }
 }
