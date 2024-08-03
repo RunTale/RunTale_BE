@@ -11,6 +11,7 @@ import com.likelion.runtale.domain.running.entity.Running;
 import com.likelion.runtale.domain.running.entity.RunningStatus;
 import com.likelion.runtale.domain.running.repository.RunningRepository;
 import com.likelion.runtale.domain.scenario.entity.Scenario;
+import com.likelion.runtale.domain.scenario.entity.ScenarioStep;
 import com.likelion.runtale.domain.scenario.repository.ScenarioRepository;
 import com.likelion.runtale.domain.user.entity.User;
 import com.likelion.runtale.domain.user.repository.UserRepository;
@@ -32,16 +33,20 @@ public class RunningService {
     private final RunningRepository runningRepository;
     private final UserRepository userRepository;
     private final ScenarioRepository scenarioRepository;
-    private static final int TTL_MINUTES = 15;
+    private static final int TTL_MINUTES = 1;
 
     public RunningResponse saveRunning(Long userId, RunningRequest runningRequest) {
         Running running = getOrCreateRunning(runningRequest);
         User user = findUserById(userId);
 
         if (running.getId() == null) {
-            Scenario scenario = findScenarioById(runningRequest.getScenarioId());
+            if (runningRequest.getScenarioId() != 0) {
+                Scenario scenario = findScenarioById(runningRequest.getScenarioId());
+                running.setScenario(scenario);
+            } else {
+                running.setScenario(null); // 시나리오 ID가 0이면 시나리오 없이 설정
+            }
             running.setUser(user);
-            running.setScenario(scenario);
         }
 
         updateRunningWithRequest(running, runningRequest);
@@ -50,6 +55,7 @@ public class RunningService {
 
         return new RunningResponse(running);
     }
+
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_EXIST));
@@ -158,6 +164,37 @@ public class RunningService {
         LocalDateTime startDate = yearMonth.atDay(1).atStartOfDay();
         LocalDateTime endDate = yearMonth.atEndOfMonth().atTime(23, 59, 59);
         return runningRepository.findByUserIdAndDateRange(userId, startDate, endDate);
+    }
+
+    public ScenarioStep checkScenarioStep(Long runningId, double distance) {
+        Running running = runningRepository.findById(runningId)
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.RUNNING_NOT_FOUND));
+
+        Scenario scenario = running.getScenario();
+        if (scenario == null) {
+            // 시나리오가 없는 경우의 로직 처리 (예: 그냥 null 반환)
+            return null;
+        }
+
+        // 거리 기준으로 시나리오 단계 체크
+        int stepNumber = determineStepNumber(distance);
+        return scenario.getSteps().stream()
+                .filter(step -> step.getStepNumber() == stepNumber)
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException(ErrorMessage.SCENARIO_STEP_NOT_FOUND));
+    }
+
+    private int determineStepNumber(double distance) {
+        // 거리 기준으로 단계 결정 로직
+        if (distance >= 3.0) {
+            return 3;
+        } else if (distance >= 2.0) {
+            return 2;
+        } else if (distance >= 1.0) {
+            return 1;
+        } else {
+            return 0; // 아직 달성한 단계가 없을 때
+        }
     }
 
 }

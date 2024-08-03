@@ -10,16 +10,16 @@ import com.likelion.runtale.domain.running.dto.RunningResponse;
 import com.likelion.runtale.domain.running.dto.RunningStatsResponse;
 import com.likelion.runtale.domain.running.entity.Running;
 import com.likelion.runtale.domain.running.service.RunningService;
+import com.likelion.runtale.domain.scenario.entity.ScenarioStep;
 import com.likelion.runtale.domain.user.entity.User;
 import com.likelion.runtale.domain.user.service.UserService;
 import com.likelion.runtale.web.SessionConst;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -75,4 +75,14 @@ public class RunningController {
         RunningStatsResponse runningStatsResponse = runningService.getRunningStats(userId,oneMonthAgo,now);
         return ResponseEntity.ok(ApiResponse.success(SuccessMessage.RUNNING_INFO_SUCCESS, runningStatsResponse));
     }
+
+    @Operation(summary = "현재 거리로 시나리오 단계 체크")
+    @GetMapping("/{runningId}/check-step")
+    public ResponseEntity<ApiResponse<ScenarioStep>> checkScenarioStep(
+            @PathVariable Long runningId,
+            @RequestParam double distance) {
+        ScenarioStep scenarioStep = runningService.checkScenarioStep(runningId, distance);
+        return ResponseEntity.ok(ApiResponse.success(SuccessMessage.SCENARIO_STEP_SUCCESS, scenarioStep));
+    }
+
 }
