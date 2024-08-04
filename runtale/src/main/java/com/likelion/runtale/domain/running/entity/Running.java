@@ -45,6 +45,8 @@ public class Running extends BaseTimeEntity{
 
     private Double targetDistance;
 
+    private Long scenarioSignal;
+
     @Enumerated(EnumType.STRING)
     private RunningStatus status;
 
