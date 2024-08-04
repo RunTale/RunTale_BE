@@ -76,13 +76,13 @@ public class RunningController {
         return ResponseEntity.ok(ApiResponse.success(SuccessMessage.RUNNING_INFO_SUCCESS, runningStatsResponse));
     }
 
-    @Operation(summary = "현재 거리로 시나리오 단계 체크")
-    @GetMapping("/{runningId}/check-step")
-    public ResponseEntity<ApiResponse<ScenarioStep>> checkScenarioStep(
-            @PathVariable Long runningId,
-            @RequestParam double distance) {
-        ScenarioStep scenarioStep = runningService.checkScenarioStep(runningId, distance);
-        return ResponseEntity.ok(ApiResponse.success(SuccessMessage.SCENARIO_STEP_SUCCESS, scenarioStep));
-    }
+//    @Operation(summary = "현재 거리로 시나리오 단계 체크")
+//    @GetMapping("/{runningId}/check-step")
+//    public ResponseEntity<ApiResponse<ScenarioStep>> checkScenarioStep(
+//            @PathVariable Long runningId,
+//            @RequestParam double distance) {
+//        ScenarioStep scenarioStep = runningService.checkScenarioStep(runningId, distance);
+//        return ResponseEntity.ok(ApiResponse.success(SuccessMessage.SCENARIO_STEP_SUCCESS, scenarioStep));
+//    }
 
 }
