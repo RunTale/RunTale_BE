@@ -24,7 +24,7 @@ public class RunningResponse {
     private Long scenarioId;
     private RunningStatus status;
     private List<LocationResponse> locations;
-    private Long scenarioSignal;
+    private String audioUrl;
 
     public RunningResponse(Running running) {
         this.id = running.getId();
@@ -41,6 +41,9 @@ public class RunningResponse {
         this.locations = running.getLocations().stream()
                 .map(LocationResponse::new)
                 .collect(Collectors.toList());
-        this.scenarioSignal = running.getScenarioSignal();
+    }
+    public RunningResponse(Running running, String audioUrl) {
+        this(running);
+        this.audioUrl = audioUrl; // 오디오 URL 설정
     }
 }

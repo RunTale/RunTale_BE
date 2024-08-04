@@ -33,11 +33,12 @@ public class RunningService {
     private final RunningRepository runningRepository;
     private final UserRepository userRepository;
     private final ScenarioRepository scenarioRepository;
-    private static final int TTL_MINUTES = 1;
+    private static final int TTL_MINUTES = 30;
 
     public RunningResponse saveRunning(Long userId, RunningRequest runningRequest) {
         Running running = getOrCreateRunning(runningRequest);
         User user = findUserById(userId);
+        String audioUrl;
 
         if (running.getId() == null) {
             if (runningRequest.getScenarioId() != 0) {
@@ -53,7 +54,8 @@ public class RunningService {
         user.addOrUpdateRunning(running);
         runningRepository.save(running);
 
-        return new RunningResponse(running);
+        audioUrl = checkAndReturnAudioUrl(running);
+        return new RunningResponse(running, audioUrl);
     }
 
     private User findUserById(Long userId) {
@@ -89,27 +91,38 @@ public class RunningService {
             location.setLongitude(runningRequest.getLongitude());
             running.getLocations().add(location);
         }
-
-        double currentDistance = running.getDistance();
-        double targetDistance = running.getTargetDistance() != null ? running.getTargetDistance() : 0.0;
-        Long signal = (long) calculateSignal(currentDistance, targetDistance);
-        running.setScenarioSignal(signal); // 새로운 필드로 시그널 저장 (추가 필요)
     }
-    private int calculateSignal(double currentDistance, double targetDistance) {
-        if (targetDistance == 0) {
-            return 0; // 목표 거리가 설정되지 않았을 경우 기본값
-        }
+    private String checkAndReturnAudioUrl(Running running) {
+        double currentDistance = running.getDistance();
+        int stepNumber;
 
-        double progressRatio = currentDistance / targetDistance;
+        Scenario scenario = running.getScenario();
 
-        if (progressRatio >= 1) {
-            return 3; // 목표 거리에 도달했거나 초과했을 경우
-        } else if (progressRatio >= 2.0 / 3.0) {
-            return 2; // 2/3 지점을 지남
-        } else if (progressRatio >= 1.0 / 3.0) {
-            return 1; // 1/3 지점을 지남
+        if (scenario == null) return null;
+
+        stepNumber = determineStepNumber(currentDistance);
+
+        if (running.getMilestones().contains(stepNumber)) return null; // 이미 해당 구간을 처리한 경우
+
+        running.getMilestones().add(stepNumber);
+
+        ScenarioStep scenarioStep = scenario.getSteps().stream()
+                .filter(step -> step.getStepNumber() == stepNumber)
+                .findFirst()
+                .orElse(null);
+
+        return scenarioStep != null ? scenarioStep.getAudioUrl() : null;
+    }
+    private int determineStepNumber(double distance) {
+        // 거리 기준으로 단계 결정 로직
+        if (distance >= 3.0) {
+            return 4;
+        } else if (distance >= 2.0) {
+            return 3;
+        } else if (distance >= 1.0) {
+            return 2;
         } else {
-            return 0; // 시작점 ~ 1/3 지점
+            return 1; // 아직 달성한 단계가 없을 때
         }
     }
 
@@ -152,10 +165,6 @@ public class RunningService {
                 });
     }
 
-    public List<Running> getRunningsByUserIdAndDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
-        return runningRepository.findByUserIdAndDateRange(userId, startDate, endDate);
-    }
-
     public RunningStatsResponse getRunningStats(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
         List<Running> runnings = runningRepository.findByUserIdAndDateRange(userId, startDate, endDate)
                 .stream()
@@ -181,42 +190,22 @@ public class RunningService {
     private double calculateAveragePace(double totalPace, int totalRunningCount) {
         return totalRunningCount > 0 ? totalPace / totalRunningCount : 0;
     }
-    public List<Running> getRunningsByUserIdAndMonth(Long userId, int year, int month) {
-        YearMonth yearMonth = YearMonth.of(year, month);
-        LocalDateTime startDate = yearMonth.atDay(1).atStartOfDay();
-        LocalDateTime endDate = yearMonth.atEndOfMonth().atTime(23, 59, 59);
-        return runningRepository.findByUserIdAndDateRange(userId, startDate, endDate);
-    }
 
-    public ScenarioStep checkScenarioStep(Long runningId, double distance) {
-        Running running = runningRepository.findById(runningId)
-                .orElseThrow(() -> new NotFoundException(ErrorMessage.RUNNING_NOT_FOUND));
-
-        Scenario scenario = running.getScenario();
-        if (scenario == null) {
-            // 시나리오가 없는 경우의 로직 처리 (예: 그냥 null 반환)
-            return null;
-        }
-
-        // 거리 기준으로 시나리오 단계 체크
-        int stepNumber = determineStepNumber(distance);
-        return scenario.getSteps().stream()
-                .filter(step -> step.getStepNumber() == stepNumber)
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException(ErrorMessage.SCENARIO_STEP_NOT_FOUND));
-    }
-
-    private int determineStepNumber(double distance) {
-        // 거리 기준으로 단계 결정 로직
-        if (distance >= 3.0) {
-            return 3;
-        } else if (distance >= 2.0) {
-            return 2;
-        } else if (distance >= 1.0) {
-            return 1;
-        } else {
-            return 0; // 아직 달성한 단계가 없을 때
-        }
-    }
-
+//    public ScenarioStep checkScenarioStep(Long runningId, double distance) {
+//        Running running = runningRepository.findById(runningId)
+//                .orElseThrow(() -> new NotFoundException(ErrorMessage.RUNNING_NOT_FOUND));
+//
+//        Scenario scenario = running.getScenario();
+//        if (scenario == null) {
+//            // 시나리오가 없는 경우의 로직 처리 (예: 그냥 null 반환)
+//            return null;
+//        }
+//
+//        // 거리 기준으로 시나리오 단계 체크
+//        int stepNumber = determineStepNumber(distance);
+//        return scenario.getSteps().stream()
+//                .filter(step -> step.getStepNumber() == stepNumber)
+//                .findFirst()
+//                .orElseThrow(() -> new NotFoundException(ErrorMessage.SCENARIO_STEP_NOT_FOUND));
+//    }
 }

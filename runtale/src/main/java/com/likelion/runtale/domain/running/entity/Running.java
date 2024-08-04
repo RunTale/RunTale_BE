@@ -45,12 +45,14 @@ public class Running extends BaseTimeEntity{
 
     private Double targetDistance;
 
-    private Long scenarioSignal;
-
     @Enumerated(EnumType.STRING)
     private RunningStatus status;
 
     @ElementCollection
     @CollectionTable(name = "running_locations", joinColumns = @JoinColumn(name = "running_id"))
     private List<Location> locations = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "running_milestones", joinColumns = @JoinColumn(name = "running_id"))
+    private List<Integer> milestones = new ArrayList<>();
 }
