@@ -24,6 +24,7 @@ public class RunningResponse {
     private Long scenarioId;
     private RunningStatus status;
     private List<LocationResponse> locations;
+    private Long scenarioSignal;
 
     public RunningResponse(Running running) {
         this.id = running.getId();
@@ -40,5 +41,6 @@ public class RunningResponse {
         this.locations = running.getLocations().stream()
                 .map(LocationResponse::new)
                 .collect(Collectors.toList());
+        this.scenarioSignal = running.getScenarioSignal();
     }
 }

@@ -89,6 +89,28 @@ public class RunningService {
             location.setLongitude(runningRequest.getLongitude());
             running.getLocations().add(location);
         }
+
+        double currentDistance = running.getDistance();
+        double targetDistance = running.getTargetDistance() != null ? running.getTargetDistance() : 0.0;
+        Long signal = (long) calculateSignal(currentDistance, targetDistance);
+        running.setScenarioSignal(signal); // 새로운 필드로 시그널 저장 (추가 필요)
+    }
+    private int calculateSignal(double currentDistance, double targetDistance) {
+        if (targetDistance == 0) {
+            return 0; // 목표 거리가 설정되지 않았을 경우 기본값
+        }
+
+        double progressRatio = currentDistance / targetDistance;
+
+        if (progressRatio >= 1) {
+            return 3; // 목표 거리에 도달했거나 초과했을 경우
+        } else if (progressRatio >= 2.0 / 3.0) {
+            return 2; // 2/3 지점을 지남
+        } else if (progressRatio >= 1.0 / 3.0) {
+            return 1; // 1/3 지점을 지남
+        } else {
+            return 0; // 시작점 ~ 1/3 지점
+        }
     }
 
     public List<Running> getRunningsByUserId(Long userId) {
