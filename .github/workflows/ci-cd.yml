@@ -25,7 +25,7 @@ jobs:
         run: cd runtale && ./gradlew clean -x test build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: build-artifacts
           path: runtale/build/libs/runtale-0.0.1-SNAPSHOT.jar
@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: build-artifacts
           path: runtale/build/libs
