@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class LoginService {
-    //
+
     private final UserRepository userRepository;
 
     public User login(String loginId, String password) {
