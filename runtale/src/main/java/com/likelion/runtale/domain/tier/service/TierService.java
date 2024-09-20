@@ -57,7 +57,7 @@ public class TierService {
         }
 
         // 러닝 기록이 없는 사용자에게 디폴트 티어 할당
-        Tier defaultTier = findTierByName("돌멩이");
+        Tier defaultTier = findTierByName("산책코스");
         usersWithoutRuns.forEach(user -> {
             user.setTier(defaultTier);
             user.setScore(0);
@@ -70,7 +70,7 @@ public class TierService {
     @Transactional
     public void assignDefaultTierToUser(User user) {
         // 러닝 기록이 없는 경우 디폴트 티어 할당
-        Tier defaultTier = findTierByName("돌멩이");
+        Tier defaultTier = findTierByName("산책코스");
         user.setTier(defaultTier);
         user.setScore(0);
         user.setPercentile(0);
@@ -81,19 +81,19 @@ public class TierService {
     private void assignTierBasedOnPercentile(User user, double percentile) {
         user.setPercentile(percentile);
         if (percentile > 80) {
-            user.setTier(findTierByName("달팽이"));
+            user.setTier(findTierByName("산책코스"));
             user.setProgress(percentile - 80);
         } else if (percentile > 60) {
-            user.setTier(findTierByName("거북이"));
+            user.setTier(findTierByName("도전코스"));
             user.setProgress(percentile - 60);
         } else if (percentile > 40) {
-            user.setTier(findTierByName("토끼"));
+            user.setTier(findTierByName("열정코스"));
             user.setProgress(percentile - 40);
         } else if (percentile > 20) {
-            user.setTier(findTierByName("말"));
+            user.setTier(findTierByName("하프코스"));
             user.setProgress(percentile - 20);
         } else {
-            user.setTier(findTierByName("치타"));
+            user.setTier(findTierByName("풀코스"));
             user.setProgress(percentile);
         }
     }
